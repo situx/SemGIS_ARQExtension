@@ -51,7 +51,7 @@ public class GMLLiteral extends GeoSPARQLLiteral {
 
 	/** {@inheritDoc} */
 	@Override
-	protected Geometry doParse(String lexicalForm)
+	public Geometry doParse(String lexicalForm)
 		throws DatatypeFormatException {
 		try {
 			GMLConfiguration configuration = new GMLConfiguration();
