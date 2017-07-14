@@ -8,3 +8,14 @@ While there are other unofficial triple-store specific standards implementing si
 This project intends to extend the ARQ query processor of Apache Jena with functions present in POSTGIS and other relational spatial databases and with support for Raster data operations using Java libraries (e.g. Geotools, JTS)
 
 An extended GeoSPARQL vocabulary not only enables more querying opportunities but also paves the way for an extension of geospatial reasoning using the SPIN reasoning engine, as it relies on SPARQL functions to create reasoning rules.
+
+Acknowledgements:
+
+This project builds on work done in the context of the Parliament Triple Store created by Ian Simmons et.al. http://parliament.semwebcentral.org
+It extends the GeoSPARQL ability of the ARQ extension used by the Triple Store with POSTGIS functions.
+
+Remarks:
+
+This extension is based on GeoTools, but can easily be modified to use the classes of Geotoolkit.
+
+
