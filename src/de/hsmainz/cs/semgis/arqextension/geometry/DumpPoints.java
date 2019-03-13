@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,38 +8,36 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.geometry;
 
+import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
 import java.util.LinkedList;
 import java.util.List;
-
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 
 public class DumpPoints extends SingleToManyGeometrySpatialFunction {
 
-	@Override
-	protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-			String uri, FunctionEnv env) {
-		List<Geometry> result=new LinkedList<Geometry>();
-		GeometryFactory factory=new GeometryFactory();
-		for(int i=0;i<g.getNumPoints();i++){
-			result.add(factory.createPoint(g.getCoordinates()[i]));
-		}
-		return makeNodeValueList(result, datatype);
-	}
+    @Override
+    protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
+            String uri, FunctionEnv env) {
+        List<Geometry> result = new LinkedList<>();
+        GeometryFactory factory = new GeometryFactory();
+        for (int i = 0; i < g.getNumPoints(); i++) {
+            result.add(factory.createPoint(g.getCoordinates()[i]));
+        }
+        return makeNodeValueList(result, datatype);
+    }
 
-	@Override
-	protected String[] getRestOfArgumentTypes() {
-		// TODO Auto-generated method stub
-		return new String[]{};
-	}
+    @Override
+    protected String[] getRestOfArgumentTypes() {
+        // TODO Auto-generated method stub
+        return new String[]{};
+    }
 
 }

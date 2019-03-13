@@ -20,12 +20,12 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.operation.TransformException;
 
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.vocabulary.XSD;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.vocabulary.XSD;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 
 import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
 

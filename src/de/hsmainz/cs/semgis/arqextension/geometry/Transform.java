@@ -23,11 +23,11 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.vocabulary.XSD;
-import com.vividsolutions.jts.geom.Geometry;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.vocabulary.XSD;
+import org.locationtech.jts.geom.Geometry;
 
 import de.hsmainz.cs.semgis.arqextension.SingleGeometrySpatialFunction;
 import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;

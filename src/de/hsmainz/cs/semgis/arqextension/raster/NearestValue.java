@@ -17,10 +17,10 @@ import java.util.List;
 import org.geotools.coverage.grid.GridCoverage2D;
 
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.vocabulary.XSD;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.vocabulary.XSD;
 
 import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
 

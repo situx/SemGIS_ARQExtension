@@ -14,10 +14,10 @@ package de.hsmainz.cs.semgis.arqextension.envelope;
 
 import java.util.List;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.vividsolutions.jts.geom.Envelope;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.locationtech.jts.geom.Envelope;
 
 import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
 

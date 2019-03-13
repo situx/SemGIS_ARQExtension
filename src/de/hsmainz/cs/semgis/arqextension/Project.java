@@ -14,16 +14,16 @@ package de.hsmainz.cs.semgis.arqextension;
 
 import java.util.List;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.vocabulary.XSD;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.vocabulary.XSD;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 
 import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
 
-import com.vividsolutions.jts.geom.LineSegment;
+import org.locationtech.jts.geom.LineSegment;
 
 public class Project extends SingleGeometrySpatialFunction {
 

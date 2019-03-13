@@ -14,10 +14,10 @@ package de.hsmainz.cs.semgis.arqextension.geometry;
 
 import java.util.List;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.vividsolutions.jts.geom.Geometry;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.locationtech.jts.geom.Geometry;
 
 import de.hsmainz.cs.semgis.arqextension.SingleGeometrySpatialFunction;
 import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
@@ -27,7 +27,7 @@ public class MinimumBoundingCircle extends SingleGeometrySpatialFunction {
 	@Override
 	protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
 			String uri, FunctionEnv env) {
-		com.vividsolutions.jts.algorithm.MinimumBoundingCircle mincircle=new com.vividsolutions.jts.algorithm.MinimumBoundingCircle(g);
+		org.locationtech.jts.algorithm.MinimumBoundingCircle mincircle=new org.locationtech.jts.algorithm.MinimumBoundingCircle(g);
 		return makeNodeValue(mincircle.getCircle(), datatype);
 	}
 

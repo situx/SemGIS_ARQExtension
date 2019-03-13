@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,28 +8,31 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension;
 
-import com.hp.hpl.jena.query.QueryExecException;
+import org.apache.jena.query.QueryExecException;
 
-/** @author rbattle */
+/**
+ * @author rbattle
+ */
 public class GeoSPARQLFunctionException extends QueryExecException {
-	private static final long serialVersionUID = 1L;
 
-	public GeoSPARQLFunctionException() {
-	}
+    private static final long serialVersionUID = 1L;
 
-	public GeoSPARQLFunctionException(Throwable cause) {
-		super(cause);
-	}
+    public GeoSPARQLFunctionException() {
+    }
 
-	public GeoSPARQLFunctionException(String msg) {
-		super(msg);
-	}
+    public GeoSPARQLFunctionException(Throwable cause) {
+        super(cause);
+    }
 
-	public GeoSPARQLFunctionException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public GeoSPARQLFunctionException(String msg) {
+        super(msg);
+    }
+
+    public GeoSPARQLFunctionException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }
