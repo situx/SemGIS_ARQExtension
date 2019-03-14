@@ -13,8 +13,9 @@
 package de.hsmainz.cs.semgis.arqextension;
 
 import org.apache.jena.graph.Node;
+import org.apache.jena.query.QueryExecException;
 
-public class UnsupportedUnitsException extends GeoSPARQLFunctionException {
+public class UnsupportedUnitsException extends QueryExecException {
 
     private static final long serialVersionUID = -8703059733315979561L;
 
