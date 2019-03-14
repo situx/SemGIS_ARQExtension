@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,22 +8,17 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.datatypes;
 
+import de.hsmainz.cs.semgis.arqextension.Constants;
+import de.hsmainz.cs.semgis.arqextension.vocabulary.WKT;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.graph.impl.LiteralLabel;
+import org.geotools.referencing.CRS;
 import org.locationtech.jts.geom.CoordinateSequenceFactory;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -31,148 +26,154 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.hsmainz.cs.semgis.arqextension.Constants;
-import de.hsmainz.cs.semgis.arqextension.vocabulary.WKT;
-
-/** @author rbattle */
+/**
+ * @author rbattle
+ */
 public class WKTLiteral extends GeoSPARQLLiteral {
-	protected static final Logger LOG = LoggerFactory.getLogger(WKTLiteral.class);
 
-	@Override
-	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-		return super.equals(obj);
-	}
+    protected static final Logger LOG = LoggerFactory.getLogger(WKTLiteral.class);
 
-	@Override
-	public boolean isEqual(LiteralLabel value1, LiteralLabel value2) {
-		// TODO Auto-generated method stub
-		return super.isEqual(value1, value2);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        // TODO Auto-generated method stub
+        return super.equals(obj);
+    }
 
-	private static final Pattern pattern = Pattern.compile(
-		"(<([^<>\"\\{\\}|^`\\\\]*)>)?[\\r\\n\\s]*([\\w\\(\\)\\d\\s\\r\\n.\\-,]*)");
+    @Override
+    public boolean isEqual(LiteralLabel value1, LiteralLabel value2) {
+        // TODO Auto-generated method stub
+        return super.isEqual(value1, value2);
+    }
 
-	public WKTLiteral() {
-		super(WKT.WKTLiteral.getURI());
-	}
-	
-	public static void main(String[] args){
-		WKTLiteral literal=new WKTLiteral();
-		literal.doParse("POLYGON((-77.089005 38.913574,-77.029953 38.913574,-77.029953 38.886321,-77.089005 38.886321,-77.089005 38.913574))");
-	}
+    private static final Pattern pattern = Pattern.compile(
+            "(<([^<>\"\\{\\}|^`\\\\]*)>)?[\\r\\n\\s]*([\\w\\(\\)\\d\\s\\r\\n.\\-,]*)");
 
-	/** {@inheritDoc} */
-	@Override
-	public Geometry doParse(String lexForm) throws DatatypeFormatException {
-		String lexicalForm = lexForm.trim();
-		Matcher m = pattern.matcher(lexicalForm);
-		if (!m.matches()) {
-			throw new DatatypeFormatException(lexicalForm, this,
-				"Invalid or missing IRI/WKT");
-		}
-		if (3 != m.groupCount()) {
-			throw new DatatypeFormatException(lexicalForm, this,
-				"Invalid or missing IRI/WKT");
-		}
+    public WKTLiteral() {
+        super(WKT.WKTLiteral.getURI());
+    }
 
-		String iri = m.group(2);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Geometry doParse(String lexForm) throws DatatypeFormatException {
+        String lexicalForm = lexForm.trim();
+        Matcher m = pattern.matcher(lexicalForm);
+        if (!m.matches()) {
+            throw new DatatypeFormatException(lexicalForm, this,
+                    "Invalid or missing IRI/WKT");
+        }
+        if (3 != m.groupCount()) {
+            throw new DatatypeFormatException(lexicalForm, this,
+                    "Invalid or missing IRI/WKT");
+        }
 
-		Integer srid = null;
-		String auth = null;
-		CoordinateReferenceSystem crs = DEFAULT_CRS;
+        String iri = m.group(2);
 
-		if (null != iri) {
-			auth = getCoordinateReferenceSystemCode(iri);
-			if (null == auth) {
-				throw new DatatypeFormatException(
-					lexicalForm,
-					this,
-					"Could not find coordinate reference system code.  Only CRS and EPSG are supported");
-			}
-			try {
-				crs = CRS.decode(auth, false);
-				srid = CRS.lookupEpsgCode(crs, false);
-			} catch (NoSuchAuthorityCodeException e) {
-				throw new DatatypeFormatException(lexicalForm, this,
-					"Could not create geographic coordinate reference system");
-			} catch (FactoryException e) {
-				throw new DatatypeFormatException(lexicalForm, this,
-					"Could not create geographic coordinate reference system");
-			}
-			if (null == crs) {
-				throw new DatatypeFormatException(lexicalForm, this,
-					"Unsupported IRI.  Could not find coordinate reference system");
-			}
+        Integer srid = null;
+        String auth = null;
+        CoordinateReferenceSystem crs = DEFAULT_CRS;
 
-			if (null == srid) {
-				srid = 0;
-			}
-		} else {
-			srid =Constants.DEFAULT_SRID;
-			auth = Constants.DEFAULT_CRS;
-		}
+        if (null != iri) {
+            auth = getCoordinateReferenceSystemCode(iri);
+            if (null == auth) {
+                throw new DatatypeFormatException(
+                        lexicalForm,
+                        this,
+                        "Could not find coordinate reference system code.  Only CRS and EPSG are supported");
+            }
+            try {
+                crs = CRS.decode(auth, false);
+                srid = CRS.lookupEpsgCode(crs, false);
+            } catch (NoSuchAuthorityCodeException e) {
+                throw new DatatypeFormatException(lexicalForm, this,
+                        "Could not create geographic coordinate reference system");
+            } catch (FactoryException e) {
+                throw new DatatypeFormatException(lexicalForm, this,
+                        "Could not create geographic coordinate reference system");
+            }
+            if (null == crs) {
+                throw new DatatypeFormatException(lexicalForm, this,
+                        "Unsupported IRI.  Could not find coordinate reference system");
+            }
 
-		String wkt = m.group(3).toUpperCase();
+            if (null == srid) {
+                srid = 0;
+            }
+        } else {
+            srid = Constants.DEFAULT_SRID;
+            auth = Constants.DEFAULT_CRS;
+        }
 
-		CoordinateSequenceFactory csf = CoordinateArraySequenceFactory.instance();
-		GeometryFactory factory = new GeometryFactory(new PrecisionModel(
-			PrecisionModel.FLOATING), srid, csf);
+        String wkt = m.group(3).toUpperCase();
 
-		try {
-			WKTReader reader = new WKTReader(factory);
-			Geometry g = reader.read(wkt);
-			g.setUserData(auth);
-			return g;
-		} catch (ParseException e) {
-			throw new DatatypeFormatException(lexicalForm, this, "Invalid WKT");
-		}
-	}
+        CoordinateSequenceFactory csf = CoordinateArraySequenceFactory.instance();
+        GeometryFactory factory = new GeometryFactory(new PrecisionModel(
+                PrecisionModel.FLOATING), srid, csf);
 
-	/** {@inheritDoc} */
-	@Override
-	protected String doUnparse(Geometry geometry) {
-		String code = (String) geometry.getUserData();
-		String uri = getCoordinateReferenceSystemURI(code);
-		String text = geometry.toText();
-		if (null == uri) {
-			return text;
-		} else {
-			return "<" + uri + "> " + text;
-		}
-	}
+        try {
+            WKTReader reader = new WKTReader(factory);
+            Geometry g = reader.read(wkt);
+            g.setUserData(auth);
+            return g;
+        } catch (ParseException e) {
+            throw new DatatypeFormatException(lexicalForm, this, "Invalid WKT");
+        }
+    }
 
-	@Override
-	public int hashCode() {
-		// TODO Auto-generated method stub
-		return super.hashCode();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String doUnparse(Geometry geometry) {
+        String code = (String) geometry.getUserData();
+        String uri = getCoordinateReferenceSystemURI(code);
+        String text = geometry.toText();
+        if (null == uri) {
+            return text;
+        } else {
+            return "<" + uri + "> " + text;
+        }
+    }
 
-	public static class WKTConstructor extends ConstructorFunction<WKTLiteral> {
-		public WKTConstructor() {
-			super(new WKTLiteral());
-		}
-	}
+    @Override
+    public int hashCode() {
+        // TODO Auto-generated method stub
+        return super.hashCode();
+    }
 
-	protected WKTLiteral(String uri) {
-		super(uri);
-	}
+    public static class WKTConstructor extends ConstructorFunction<WKTLiteral> {
 
-	public static class WKTLiteralSFNamespace extends WKTLiteral {
-		public WKTLiteralSFNamespace() {
-			super(WKT.DATATYPE_URI + "wktLiteral");
-		}
+        public WKTConstructor() {
+            super(new WKTLiteral());
+        }
+    }
 
-		@Override
-		public Geometry doParse(String value) {
-			LOG.warn("Accepting WKT geometry with incorrect datatype sf:wktLiteral");
-			return super.doParse(value);
-		}
-	}
+    protected WKTLiteral(String uri) {
+        super(uri);
+    }
 
-	// @Override
-	// public Object cannonicalise(Object value) {
-	// return super.cannonicalise(value);
-	// }
+    public static class WKTLiteralSFNamespace extends WKTLiteral {
+
+        public WKTLiteralSFNamespace() {
+            super(WKT.DATATYPE_URI + "wktLiteral");
+        }
+
+        @Override
+        public Geometry doParse(String value) {
+            LOG.warn("Accepting WKT geometry with incorrect datatype sf:wktLiteral");
+            return super.doParse(value);
+        }
+    }
+
+    // @Override
+    // public Object cannonicalise(Object value) {
+    // return super.cannonicalise(value);
+    // }
 }

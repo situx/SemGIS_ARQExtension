@@ -35,8 +35,4 @@ public class OffsetCurve extends SingleGeometrySpatialFunction {
         return new String[]{};
     }
 
-    public static void main(String[] args) {
-        System.out.println(Double.valueOf("13.0") + Double.valueOf("1.7179869176E10"));
-    }
-
 }

@@ -33,16 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GMLLiteral extends GeoSPARQLLiteral {
 
-    protected static final Logger LOG = LoggerFactory
-            .getLogger(GMLLiteral.class);
-
-    public static void main(String[] args) {
-        GMLLiteral l = new GMLLiteral();
-        l.parse("<gml:MultiSurface srsName=\"urn:x-ogc:def:crs:EPSG:4326\" xmlns:gml=\"http://www.opengis.net/gml\">     <gml:surfaceMember>       <gml:Polygon>        <gml:exterior>         <gml:LinearRing>          <gml:posList>38.966556999999995 -77.008232 38.88998799999999 -76.911209 38.78811999999999 -77.045448 38.81391500000001 -77.035248 38.829364999999996 -77.045189 38.838413 -77.040405 38.86243099999999 -77.039078 38.886101 -77.067886 38.91560000000001 -77.078949 38.93206000000001 -77.122627 38.99343099999999 -77.042389 38.966556999999995 -77.008232</gml:posList>         </gml:LinearRing>        </gml:exterior>       </gml:Polygon>      </gml:surfaceMember>     </gml:MultiSurface>");
-        l.parse("<gml:Point        srsName=\"urn:x-ogc:def:crs:EPSG:4326\" xmlns:gml=\"http://www.opengis.net/gml\">  <gml:pos sDimension=\"2\">-83.38 33.95</gml:pos></gml:Point>");
-        // System.out.println(g);
-    }// urn:x-ogc:def:crs:EPSG:4326
-    // http://www.opengis.net/def/crs/OGC/1.3/CRS84
+    protected static final Logger LOG = LoggerFactory.getLogger(GMLLiteral.class);
 
     public GMLLiteral() {
         super(GML.GMLLiteral.getURI());
