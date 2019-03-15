@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,30 +8,30 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.envelope;
 
-import java.util.List;
-
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionBase1;
 import org.locationtech.jts.geom.Envelope;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+public class YMax extends FunctionBase1 {
 
-public class YMax extends SingleEnvelopeSpatialFunction {
+    @Override
+    public NodeValue exec(NodeValue arg0) {
 
-	@Override
-	protected NodeValue exec(Envelope g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-			String uri, FunctionEnv env) {
-		return NodeValue.makeDouble(g.getMaxY());
-	}
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            Envelope envelope = geometry.getEnvelope();
 
-	@Override
-	protected String[] getRestOfArgumentTypes() {
-		return new String[]{};
-	}
+            return NodeValue.makeDouble(envelope.getMaxY());
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
+    }
 
 }
