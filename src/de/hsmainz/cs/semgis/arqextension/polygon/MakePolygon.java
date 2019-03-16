@@ -12,30 +12,37 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.polygon;
 
-import de.hsmainz.cs.semgis.arqextension.DoubleGeometrySpatialFunction;
-import de.hsmainz.cs.semgis.arqextension.SpatialFunctionBase;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import de.hsmainz.cs.semgis.arqextension.datatypes.WKTLiteral;
-import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionBase2;
 import org.geotools.geometry.jts.GeometryBuilder;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LinearRing;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.operation.TransformException;
+import org.opengis.util.FactoryException;
 
-public class MakePolygon extends DoubleGeometrySpatialFunction {
-
-    @Override
-    protected String[] getRestOfArgumentTypes() {
-        return new String[]{};
-    }
+public class MakePolygon extends FunctionBase2 {
 
     @Override
-    protected NodeValue exec(Geometry g1, Geometry g2, GeoSPARQLLiteral datatype, Binding binding,
-            List<NodeValue> evalArgs, String uri, FunctionEnv env) {
-        GeometryBuilder builder = new GeometryBuilder();
-        return SpatialFunctionBase.makeNodeValue(builder.polygon((LinearRing) g1, (LinearRing) g2), new WKTLiteral());
+    public NodeValue exec(NodeValue arg0, NodeValue arg1) {
+
+        try {
+            GeometryWrapper geom1 = GeometryWrapper.extract(arg0);
+            GeometryWrapper geom2 = GeometryWrapper.extract(arg1);
+            GeometryWrapper transGeom2 = geom2.transform(geom1.getSrsInfo());
+            GeometryBuilder builder = new GeometryBuilder();
+            Geometry polygon = builder.polygon((LinearRing) geom1.getXYGeometry(), (LinearRing) transGeom2.getXYGeometry());
+
+            GeometryWrapper polygonWrapper = GeometryWrapper.createGeometry(polygon, geom1.getSrsURI(), geom1.getGeometryDatatypeURI());
+
+            return polygonWrapper.asNodeValue();
+        } catch (DatatypeFormatException | FactoryException | MismatchedDimensionException | TransformException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
+
     }
 
 }
