@@ -12,18 +12,47 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.point;
 
-import de.hsmainz.cs.semgis.arqextension.SpatialFunctionBase;
-import de.hsmainz.cs.semgis.arqextension.datatypes.WKTLiteral;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import io.github.galbiston.geosparql_jena.implementation.datatype.WKTDatatype;
+import io.github.galbiston.geosparql_jena.implementation.vocabulary.SRS_URI;
+import java.util.List;
+import org.apache.jena.atlas.lib.Lib;
+import org.apache.jena.query.QueryBuildException;
+import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionBase2;
-import org.geotools.geometry.jts.GeometryBuilder;
+import org.apache.jena.sparql.function.FunctionBase;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
+import org.locationtech.jts.geom.CoordinateXYZM;
 
-public class MakePoint extends FunctionBase2 {
+public class MakePoint extends FunctionBase {
 
     @Override
-    public NodeValue exec(NodeValue arg0, NodeValue arg1) {
-        GeometryBuilder builder = new GeometryBuilder();
-        return SpatialFunctionBase.makeNodeValue(builder.point(arg0.getDouble(), arg1.getDouble()), new WKTLiteral());
+    public NodeValue exec(List<NodeValue> args) {
+
+        Coordinate coord;
+        switch (args.size()) {
+            case 3:
+                coord = new Coordinate(args.get(0).getDouble(), args.get(1).getDouble(), args.get(2).getDouble());
+                break;
+            case 4:
+                coord = new CoordinateXYZM(args.get(0).getDouble(), args.get(1).getDouble(), args.get(2).getDouble(), args.get(3).getDouble());
+                break;
+            default:
+                coord = new CoordinateXY(args.get(0).getDouble(), args.get(1).getDouble());
+
+        }
+
+        GeometryWrapper pointWrapper = GeometryWrapper.createPoint(coord, SRS_URI.DEFAULT_WKT_CRS84, WKTDatatype.URI);
+
+        return pointWrapper.asNodeValue();
+    }
+
+    @Override
+    public void checkBuild(String uri, ExprList args) {
+        if (args.size() < 2 || args.size() > 4) {
+            throw new QueryBuildException("Function '" + Lib.className(this) + "' takes two, three or four arguments");
+        }
     }
 
 }

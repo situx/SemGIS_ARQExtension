@@ -12,41 +12,50 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.point;
 
-import de.hsmainz.cs.semgis.arqextension.DoubleGeometrySpatialFunction;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.awt.geom.Point2D;
-import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionBase2;
 import org.geotools.referencing.GeodeticCalculator;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.operation.TransformException;
+import org.opengis.util.FactoryException;
 
-public class Azimuth extends DoubleGeometrySpatialFunction {
+public class Azimuth extends FunctionBase2 {
 
     @Override
-    protected NodeValue exec(Geometry g1, Geometry g2, GeoSPARQLLiteral datatype, Binding binding,
-            List<NodeValue> evalArgs, String uri, FunctionEnv env) {
-        GeodeticCalculator calc = new GeodeticCalculator();
+    public NodeValue exec(NodeValue arg0, NodeValue argeom1) {
 
-        if (g1 instanceof Point && g2 instanceof Point) {
-            Point2D point1 = new java.awt.Point();
-            point1.setLocation(g1.getCoordinate().x, g1.getCoordinate().y);
-            Point2D point2 = new java.awt.Point();
-            point2.setLocation(g2.getCoordinate().x, g2.getCoordinate().y);
-            calc.setStartingGeographicPoint(point1);
-            calc.setDestinationGeographicPoint(point2);
-            return NodeValue.makeDouble(calc.getAzimuth());
+        try {
+            GeometryWrapper geometry1 = GeometryWrapper.extract(arg0);
+            GeometryWrapper geometry2 = GeometryWrapper.extract(argeom1);
+            GeometryWrapper transGeometry2 = geometry2.transform(geometry1.getSrsInfo());
+
+            Geometry geom1 = geometry1.getXYGeometry();
+            Geometry geom2 = transGeometry2.getXYGeometry();
+
+            GeodeticCalculator calc = new GeodeticCalculator();
+
+            if (geom1 instanceof Point && geom2 instanceof Point) {
+                Point2D point1 = new java.awt.Point();
+                point1.setLocation(geom1.getCoordinate().x, geom1.getCoordinate().y);
+                Point2D point2 = new java.awt.Point();
+                point2.setLocation(geom2.getCoordinate().x, geom2.getCoordinate().y);
+                calc.setStartingGeographicPoint(point1);
+                calc.setDestinationGeographicPoint(point2);
+                return NodeValue.makeDouble(calc.getAzimuth());
+            }
+
+            return NodeValue.nvNothing;
+
+        } catch (DatatypeFormatException | FactoryException | MismatchedDimensionException | TransformException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
         }
-        // TODO Auto-generated method stub
-        return NodeValue.nvNothing;
-    }
 
-    @Override
-    protected String[] getRestOfArgumentTypes() {
-        // TODO Auto-generated method stub
-        return new String[]{};
     }
 
 }

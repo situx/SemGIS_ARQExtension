@@ -12,25 +12,31 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.point;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionBase1;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 
-public class X extends SinglePointSpatialFunction {
+public class X extends FunctionBase1 {
 
     @Override
-    protected NodeValue exec(Point g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-            String uri, FunctionEnv env) {
-        return NodeValue.makeDouble(g.getX());
-    }
+    public NodeValue exec(NodeValue arg0) {
 
-    @Override
-    protected String[] getRestOfArgumentTypes() {
-        // TODO Auto-generated method stub
-        return new String[]{};
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            Geometry geom = geometry.getXYGeometry();
+
+            if (geom instanceof Point) {
+                return NodeValue.makeDouble(((Point) geom).getX());
+            }
+
+            return NodeValue.nvNothing;
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
     }
 
 }
