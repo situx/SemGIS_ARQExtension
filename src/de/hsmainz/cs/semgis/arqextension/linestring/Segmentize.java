@@ -27,9 +27,9 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.util.FactoryException;
 
 public class Segmentize extends FunctionBase2 {
 
@@ -53,7 +53,7 @@ public class Segmentize extends FunctionBase2 {
             //Returning the list of space delimited literals. This is the same as GROUP_CONCAT.
             //Correct splitting of results for use in query would need a Property Function.
             return NodeValue.makeNodeString(String.join(" ", results));
-        } catch (DatatypeFormatException | FactoryException ex) {
+        } catch (DatatypeFormatException | FactoryException | NoSuchAuthorityCodeException ex) {
             throw new ExprEvalException(ex.getMessage(), ex);
         }
     }

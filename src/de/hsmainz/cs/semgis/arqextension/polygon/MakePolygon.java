@@ -16,30 +16,25 @@ import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionBase2;
-import org.geotools.geometry.jts.GeometryBuilder;
+import org.apache.jena.sparql.function.FunctionBase1;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LinearRing;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.operation.TransformException;
-import org.opengis.util.FactoryException;
 
-public class MakePolygon extends FunctionBase2 {
+public class MakePolygon extends FunctionBase1 {
 
     @Override
-    public NodeValue exec(NodeValue arg0, NodeValue arg1) {
+    public NodeValue exec(NodeValue arg0) {
 
+        //TODO method can accept array of LinearRing holes but unclear how this would be passed in query.
         try {
-            GeometryWrapper geom1 = GeometryWrapper.extract(arg0);
-            GeometryWrapper geom2 = GeometryWrapper.extract(arg1);
-            GeometryWrapper transGeom2 = geom2.transform(geom1.getSrsInfo());
-            GeometryBuilder builder = new GeometryBuilder();
-            Geometry polygon = builder.polygon((LinearRing) geom1.getXYGeometry(), (LinearRing) transGeom2.getXYGeometry());
-
-            GeometryWrapper polygonWrapper = GeometryWrapper.createGeometry(polygon, geom1.getSrsURI(), geom1.getGeometryDatatypeURI());
-
-            return polygonWrapper.asNodeValue();
-        } catch (DatatypeFormatException | FactoryException | MismatchedDimensionException | TransformException ex) {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            Geometry geom = geometry.getXYGeometry();
+            if (geom instanceof LinearRing) {
+                GeometryWrapper polygonWrapper = GeometryWrapper.createPolygon((LinearRing) geom, geometry.getSrsURI(), geometry.getGeometryDatatypeURI());
+                return polygonWrapper.asNodeValue();
+            }
+            return NodeValue.nvNothing;
+        } catch (DatatypeFormatException ex) {
             throw new ExprEvalException(ex.getMessage(), ex);
         }
 

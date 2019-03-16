@@ -18,10 +18,9 @@ import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionBase2;
-import org.geotools.geometry.jts.GeometryBuilder;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Point;
 
 public class PointN extends FunctionBase2 {
 
@@ -32,14 +31,13 @@ public class PointN extends FunctionBase2 {
             GeometryWrapper geometry = GeometryWrapper.extract(arg0);
             Geometry geom = geometry.getXYGeometry();
 
-            GeometryBuilder builder = new GeometryBuilder();
             BigInteger n = arg1.getInteger();
             if (n.intValue() >= geom.getCoordinates().length) {
                 return NodeValue.nvNothing;
             }
             Coordinate[] coords = geom.getCoordinates();
-            Point point = builder.point(coords[n.intValue()].x, coords[n.intValue()].y);
-            GeometryWrapper pointWrapper = GeometryWrapper.createGeometry(point, geometry.getSrsURI(), geometry.getGeometryDatatypeURI());
+            CoordinateXY coord = new CoordinateXY(coords[n.intValue()].x, coords[n.intValue()].y);
+            GeometryWrapper pointWrapper = GeometryWrapper.createPoint(coord, geometry.getSrsURI(), geometry.getGeometryDatatypeURI());
 
             return pointWrapper.asNodeValue();
 
