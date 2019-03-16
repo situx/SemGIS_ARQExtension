@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,30 +8,33 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.geometry;
 
-import java.util.List;
-
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionBase1;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 
-import de.hsmainz.cs.semgis.arqextension.SingleGeometrySpatialFunction;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+public class Centroid extends FunctionBase1 {
 
-public class Centroid extends SingleGeometrySpatialFunction{
-	@Override
-	protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-			String uri, FunctionEnv env) {
-		return makeNodeValue(g.getCentroid(), datatype);
-	}
+    @Override
+    public NodeValue exec(NodeValue arg0) {
 
-	@Override
-	protected String[] getRestOfArgumentTypes() {
-		// TODO Auto-generated method stub
-		return new String[]{};
-	}
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            Geometry geom = geometry.getXYGeometry();
+
+            Point centroid = geom.getCentroid();
+            GeometryWrapper centroidWrapper = GeometryWrapper.createPoint(centroid.getCoordinate(), geometry.getSrsURI(), geometry.getGeometryDatatypeURI());
+
+            return centroidWrapper.asNodeValue();
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
+    }
 }

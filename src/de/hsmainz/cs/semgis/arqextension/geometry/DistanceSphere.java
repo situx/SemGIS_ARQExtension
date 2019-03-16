@@ -12,58 +12,31 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.geometry;
 
-import de.hsmainz.cs.semgis.arqextension.DoubleGeometrySpatialFunction;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Point;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.apache.jena.sparql.function.FunctionBase2;
+import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.operation.TransformException;
+import org.opengis.util.FactoryException;
 
-public class DistanceSphere extends DoubleGeometrySpatialFunction {
-
-    @Override
-    protected NodeValue exec(Geometry g1, Geometry g2, GeoSPARQLLiteral datatype, Binding binding,
-            List<NodeValue> evalArgs, String uri, FunctionEnv env) {
-        if (g1 instanceof Point && g2 instanceof Point) {
-            return NodeValue.makeDouble(calculateDistance(null, new Point[]{(Point) g1, (Point) g2}));
-        } else {
-            return NodeValue.makeDouble(calculateDistance(null, new Point[]{g1.getInteriorPoint(), g2.getInteriorPoint()}));
-        }
-    }
+public class DistanceSphere extends FunctionBase2 {
 
     @Override
-    protected String[] getRestOfArgumentTypes() {
-        return new String[]{};
-    }
+    public NodeValue exec(NodeValue arg0, NodeValue arg1) {
 
-    private Double calculateDistance(
-            CoordinateReferenceSystem crs, Point[] points) {
-        if (crs == null) {
-            crs = DefaultGeographicCRS.WGS84;
-        }
-        double distance = 0.0;
         try {
-            distance = JTS.orthodromicDistance(
-                    points[0].getCoordinate(),
-                    points[1].getCoordinate(), crs);
-        } catch (TransformException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            GeometryWrapper geom1 = GeometryWrapper.extract(arg0);
+            GeometryWrapper geom2 = GeometryWrapper.extract(arg1);
+            GeometryWrapper transGeom2 = geom2.transform(geom1.getSrsInfo());
+            double distance = geom1.distanceGreatCircle(transGeom2);
+
+            return NodeValue.makeDouble(distance);
+        } catch (DatatypeFormatException | FactoryException | MismatchedDimensionException | TransformException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
         }
 
-        // Measure<Double, javax.measure.quantity.Length> dist = Measure.valueOf(
-        //      distance, SI.METRE);
-        // System.out.println(dist.doubleValue(SI.KILOMETRE)
-        //                + " Km");
-        // System.out.println(dist.doubleValue(NonSI.MILE)
-        //                  + " miles");
-        return null;//dist.doubleValue(SI.METRE);
     }
 
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,36 +8,42 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.geometry;
 
-import java.util.List;
-
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.vocabulary.XSD;
+import org.apache.jena.sparql.function.FunctionBase3;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.operation.overlay.snap.GeometrySnapper;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.operation.TransformException;
+import org.opengis.util.FactoryException;
 
-import de.hsmainz.cs.semgis.arqextension.DoubleGeometrySpatialFunction;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+public class Snap extends FunctionBase3 {
 
-public class Snap extends DoubleGeometrySpatialFunction {
+    @Override
+    public NodeValue exec(NodeValue arg0, NodeValue arg1, NodeValue arg2) {
 
-	@Override
-	protected NodeValue exec(Geometry g1, Geometry g2, GeoSPARQLLiteral datatype, Binding binding,
-			List<NodeValue> evalArgs, String uri, FunctionEnv env) {
-		Double tolerance=evalArgs.get(0).getDouble();
-		GeometrySnapper snapper=new GeometrySnapper(g1);
-		return makeNodeValue(snapper.snapTo(g2, tolerance),datatype);
-	}
+        try {
+            GeometryWrapper geom1 = GeometryWrapper.extract(arg0);
+            GeometryWrapper geom2 = GeometryWrapper.extract(arg1);
+            GeometryWrapper transGeom2 = geom2.transform(geom1.getSrsInfo());
+            double tolerance = arg2.getDouble();
 
-	@Override
-	protected String[] getRestOfArgumentTypes() {
-		// TODO Auto-generated method stub
-		return new String[]{XSD.xdouble.getURI()};
-	}
+            //Snap
+            GeometrySnapper snapper = new GeometrySnapper(geom1.getXYGeometry());
+            Geometry snapGeom = snapper.snapTo(transGeom2.getXYGeometry(), tolerance);
+
+            GeometryWrapper snapWrapper = GeometryWrapper.createGeometry(snapGeom, geom1.getSrsURI(), geom1.getGeometryDatatypeURI());
+            return snapWrapper.asNodeValue();
+        } catch (DatatypeFormatException | FactoryException | MismatchedDimensionException | TransformException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
+
+    }
 
 }

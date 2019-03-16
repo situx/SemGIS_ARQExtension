@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,53 +8,47 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.geometry;
 
-import java.util.List;
-
-import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.CRS;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
-
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import io.github.galbiston.geosparql_jena.implementation.SRSInfo;
+import java.math.BigInteger;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.vocabulary.XSD;
-import org.locationtech.jts.geom.Geometry;
+import org.apache.jena.sparql.function.FunctionBase2;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.operation.TransformException;
+import org.opengis.util.FactoryException;
 
-import de.hsmainz.cs.semgis.arqextension.SingleGeometrySpatialFunction;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+public class Transform extends FunctionBase2 {
 
-public class Transform extends SingleGeometrySpatialFunction {
+    @Override
+    public NodeValue exec(NodeValue arg0, NodeValue arg1) {
 
-	@Override
-	protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-			String uri, FunctionEnv env) {
-		Integer srid=evalArgs.get(0).getInteger().intValue();
-		try {
-			CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:"+g.getSRID());
-			CoordinateReferenceSystem targetCRS = CRS.decode("EPSG:"+srid);
-			MathTransform transform=CRS.findMathTransform(sourceCRS, targetCRS);
-			Geometry targetGeometry = JTS.transform( g, transform);
-			return makeNodeValue(targetGeometry, datatype);		
-		} catch (FactoryException | MismatchedDimensionException | TransformException e) {
-			// TODO Transform CRS system to given parameter
-			return NodeValue.nvNothing;
-		}
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            SRSInfo srsInfo;
+            if (arg1.isInteger()) {
+                BigInteger srid = arg1.getInteger();
+                srsInfo = new SRSInfo(srid.intValue());
+            } else if (arg1.isIRI()) {
+                String srsURI = arg1.getNode().getURI();
+                srsInfo = new SRSInfo(srsURI);
+            } else if (arg1.isString()) {
+                String srsURI = arg1.getString();
+                srsInfo = new SRSInfo(srsURI);
+            } else {
+                throw new ExprEvalException("Expected a SRID int, SRS URI as string or URI: " + arg1);
+            }
 
-	}
-
-	@Override
-	protected String[] getRestOfArgumentTypes() {
-		// TODO Auto-generated method stub
-		return new String[]{XSD.xint.getURI()};
-	}
+            GeometryWrapper transGeometry = geometry.transform(srsInfo);
+            return transGeometry.asNodeValue();
+        } catch (DatatypeFormatException | FactoryException | MismatchedDimensionException | TransformException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
+    }
 
 }

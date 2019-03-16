@@ -12,27 +12,32 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.geometry;
 
-import de.hsmainz.cs.semgis.arqextension.SingleGeometrySpatialFunction;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.vocabulary.XSD;
+import org.apache.jena.sparql.function.FunctionBase3;
 import org.locationtech.jts.geom.Geometry;
 
-public class ConcaveHull extends SingleGeometrySpatialFunction {
+public class ConcaveHull extends FunctionBase3 {
 
     @Override
-    protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env) {
-        org.opensphere.geometry.algorithm.ConcaveHull hull = new org.opensphere.geometry.algorithm.ConcaveHull(g, evalArgs.get(0).getDouble());
-        return makeNodeValue(hull.getConcaveHull(), datatype);
-    }
+    public NodeValue exec(NodeValue arg0, NodeValue arg1, NodeValue arg2) {
 
-    @Override
-    protected String[] getRestOfArgumentTypes() {
-        // TODO Auto-generated method stub
-        return new String[]{XSD.xdouble.getURI()};
+        try {
+            GeometryWrapper geom = GeometryWrapper.extract(arg0);
+            float targetPercent = arg1.getFloat();
+            boolean allowHoles = arg2.getBoolean();
+
+            org.opensphere.geometry.algorithm.ConcaveHull hull = new org.opensphere.geometry.algorithm.ConcaveHull(geom.getXYGeometry(), targetPercent);
+
+            Geometry concaveHull = hull.getConcaveHull();
+            GeometryWrapper concaveWrapper = GeometryWrapper.createGeometry(concaveHull, geom.getSrsURI(), geom.getGeometryDatatypeURI());
+            return concaveWrapper.asNodeValue();
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
+
     }
 
 }

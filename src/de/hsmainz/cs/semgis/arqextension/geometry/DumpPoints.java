@@ -12,32 +12,47 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.geometry;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import java.util.LinkedList;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import java.util.ArrayList;
 import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionBase1;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
 
-public class DumpPoints extends SingleToManyGeometrySpatialFunction {
+public class DumpPoints extends FunctionBase1 {
 
     @Override
-    protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-            String uri, FunctionEnv env) {
-        List<Geometry> result = new LinkedList<>();
-        GeometryFactory factory = new GeometryFactory();
-        for (int i = 0; i < g.getNumPoints(); i++) {
-            result.add(factory.createPoint(g.getCoordinates()[i]));
+    public NodeValue exec(NodeValue arg0) {
+
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            Geometry geom = geometry.getParsingGeometry();
+
+            List<String> results = new ArrayList<>(geom.getNumPoints());
+
+            String srsURI = geometry.getSrsURI();
+            String geometryDatatypeURI = geometry.getGeometryDatatypeURI();
+            Coordinate[] coordinates = geom.getCoordinates();
+            for (int i = 0; i < geom.getNumPoints(); i++) {
+
+                Coordinate coord = coordinates[i];
+                GeometryWrapper resWrapper = GeometryWrapper.createPoint(coord, srsURI, geometryDatatypeURI);
+                Literal resLiteral = resWrapper.asLiteral();
+                String resString = resLiteral.toString();
+                results.add(resString);
+            }
+
+            //Returning the list of space delimited literals. This is the same as GROUP_CONCAT.
+            //Correct splitting of results for use in query would need a Property Function.
+            return NodeValue.makeString(String.join(" ", results));
+
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
         }
-        return makeNodeValueList(result, datatype);
-    }
-
-    @Override
-    protected String[] getRestOfArgumentTypes() {
-        // TODO Auto-generated method stub
-        return new String[]{};
     }
 
 }

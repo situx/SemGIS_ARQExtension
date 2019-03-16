@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,41 +8,42 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.geometry;
 
-import java.util.List;
-
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import io.github.galbiston.geosparql_jena.spatial.filter_functions.FunctionBase5;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.vocabulary.XSD;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.util.AffineTransformation;
 
-import de.hsmainz.cs.semgis.arqextension.SingleGeometrySpatialFunction;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+public class TransScale extends FunctionBase5 {
 
-public class TransScale extends SingleGeometrySpatialFunction {
+    @Override
+    public NodeValue exec(NodeValue arg0, NodeValue arg1, NodeValue arg2, NodeValue arg3, NodeValue arg4) {
 
-	@Override
-	protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-			String uri, FunctionEnv env) {
-		Double deltax=evalArgs.get(0).getDouble();
-		Double deltay=evalArgs.get(1).getDouble();
-		Double xfactor=evalArgs.get(2).getDouble();
-		Double yfactor=evalArgs.get(3).getDouble();
-		AffineTransformation transform=new AffineTransformation();
-		transform.translate(deltax, deltay);
-		transform.scale(xfactor, yfactor);
-		return makeNodeValue(transform.transform(g),datatype);
-	}
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            Geometry geom = geometry.getXYGeometry();
+            double deltaX = arg1.getDouble();
+            double deltaY = arg2.getDouble();
+            double xFactor = arg3.getDouble();
+            double yFactor = arg4.getDouble();
 
-	@Override
-	protected String[] getRestOfArgumentTypes() {
-		// TODO Auto-generated method stub
-		return new String[]{XSD.xdouble.getURI(),XSD.xdouble.getURI(),XSD.xdouble.getURI(),XSD.xdouble.getURI()};
-	}
+            //Translate and scale
+            AffineTransformation transform = new AffineTransformation();
+            transform.translate(deltaX, deltaY);
+            transform.scale(xFactor, yFactor);
+
+            Geometry transGeom = transform.transform(geom);
+            GeometryWrapper transWrapper = GeometryWrapper.createGeometry(transGeom, geometry.getSrsURI(), geometry.getGeometryDatatypeURI());
+            return transWrapper.asNodeValue();
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
+    }
 
 }

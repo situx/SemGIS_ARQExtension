@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,37 +8,41 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.geometry;
 
-import java.util.List;
-
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import java.math.BigInteger;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.vocabulary.XSD;
+import org.apache.jena.sparql.function.FunctionBase3;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.triangulate.DelaunayTriangulationBuilder;
 
-import de.hsmainz.cs.semgis.arqextension.SingleGeometrySpatialFunction;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+public class DelaunayTriangles extends FunctionBase3 {
 
-public class DelaunayTriangles extends SingleGeometrySpatialFunction {
+    @Override
+    public NodeValue exec(NodeValue arg0, NodeValue arg1, NodeValue arg2) {
 
-	@Override
-	protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-			String uri, FunctionEnv env) {
-		DelaunayTriangulationBuilder builder=new DelaunayTriangulationBuilder();
-		builder.setTolerance(evalArgs.get(0).getDouble());
-		return makeNodeValue(builder.getTriangles(new GeometryFactory()), datatype);
-	}
+        try {
+            GeometryWrapper geom = GeometryWrapper.extract(arg0);
+            float tolerance = arg1.getFloat();
+            BigInteger flags = arg2.getInteger();
 
-	@Override
-	protected String[] getRestOfArgumentTypes() {
-		// TODO Auto-generated method stub
-		return new String[]{XSD.xdouble.getURI(),XSD.xint.getURI()};
-	}
+            DelaunayTriangulationBuilder builder = new DelaunayTriangulationBuilder();
+            builder.setTolerance(tolerance);
+            Geometry triangles = builder.getTriangles(new GeometryFactory());
+
+            GeometryWrapper trianglesWrapper = GeometryWrapper.createGeometry(triangles, geom.getSrsURI(), geom.getGeometryDatatypeURI());
+            return trianglesWrapper.asNodeValue();
+
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
+
+    }
 
 }
