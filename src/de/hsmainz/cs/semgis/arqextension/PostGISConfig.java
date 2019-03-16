@@ -1,7 +1,5 @@
 package de.hsmainz.cs.semgis.arqextension;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GMLLiteral;
-import de.hsmainz.cs.semgis.arqextension.datatypes.WKTLiteral;
 import de.hsmainz.cs.semgis.arqextension.envelope.XMax;
 import de.hsmainz.cs.semgis.arqextension.envelope.XMin;
 import de.hsmainz.cs.semgis.arqextension.envelope.YMax;
@@ -28,7 +26,6 @@ import de.hsmainz.cs.semgis.arqextension.geometry.Scale;
 import de.hsmainz.cs.semgis.arqextension.geometry.Simplify;
 import de.hsmainz.cs.semgis.arqextension.geometry.SimplifyPreserveTopology;
 import de.hsmainz.cs.semgis.arqextension.geometry.Snap;
-import de.hsmainz.cs.semgis.arqextension.geometry.StartPoint;
 import de.hsmainz.cs.semgis.arqextension.geometry.TransScale;
 import de.hsmainz.cs.semgis.arqextension.geometry.Transform;
 import de.hsmainz.cs.semgis.arqextension.geometry.Translate;
@@ -37,7 +34,9 @@ import de.hsmainz.cs.semgis.arqextension.linestring.IsClosed;
 import de.hsmainz.cs.semgis.arqextension.linestring.IsRing;
 import de.hsmainz.cs.semgis.arqextension.linestring.MakeLine;
 import de.hsmainz.cs.semgis.arqextension.linestring.Segmentize;
+import de.hsmainz.cs.semgis.arqextension.linestring.StartPoint;
 import de.hsmainz.cs.semgis.arqextension.point.Azimuth;
+import de.hsmainz.cs.semgis.arqextension.point.MakePointM;
 import de.hsmainz.cs.semgis.arqextension.point.X;
 import de.hsmainz.cs.semgis.arqextension.point.Y;
 import de.hsmainz.cs.semgis.arqextension.polygon.MakePolygon;
@@ -62,9 +61,7 @@ import de.hsmainz.cs.semgis.arqextension.raster.Width;
 import de.hsmainz.cs.semgis.arqextension.raster.WorldToRasterCoord;
 import de.hsmainz.cs.semgis.arqextension.raster.WorldToRasterCoordX;
 import de.hsmainz.cs.semgis.arqextension.raster.WorldToRasterCoordY;
-import de.hsmainz.cs.semgis.arqextension.vocabulary.GML;
 import de.hsmainz.cs.semgis.arqextension.vocabulary.PostGISGeo;
-import de.hsmainz.cs.semgis.arqextension.vocabulary.WKT;
 import io.github.galbiston.geosparql_jena.geof.nontopological.filter_functions.GetSRIDFF;
 import io.github.galbiston.geosparql_jena.geof.topological.filter_functions.geometry_property.IsEmptyFF;
 import io.github.galbiston.geosparql_jena.geof.topological.filter_functions.geometry_property.IsSimpleFF;
@@ -110,7 +107,7 @@ public class PostGISConfig {
             functionRegistry.put(PostGISGeo.st_Length.getURI(), Length.class);
             functionRegistry.put(PostGISGeo.st_Length2D.getURI(), Length.class);
             functionRegistry.put(PostGISGeo.st_makeLine.getURI(), MakeLine.class);
-            //functionRegistry.put(PostGISGeo.st_makePointM.getURI(), MakePointM.class);
+            functionRegistry.put(PostGISGeo.st_makePointM.getURI(), MakePointM.class);
             functionRegistry.put(PostGISGeo.st_makePolygon.getURI(), MakePolygon.class);
             functionRegistry.put(PostGISGeo.st_nearestValue.getURI(), NearestValue.class);
             functionRegistry.put(PostGISGeo.st_numBands.getURI(), NumBands.class);
@@ -166,11 +163,6 @@ public class PostGISConfig {
             functionRegistry.put(PostGISGeo.st_y.getURI(), Y.class);
             functionRegistry.put(PostGISGeo.st_yMin.getURI(), YMin.class);
             functionRegistry.put(PostGISGeo.st_yMax.getURI(), YMax.class);
-
-            // extra functionRegistry
-            // constructors for literals
-            functionRegistry.put(WKT.WKTLiteral.getURI(), WKTLiteral.WKTConstructor.class);
-            functionRegistry.put(GML.GMLLiteral.getURI(), GMLLiteral.GMLConstructor.class);
 
             // extra utility functionRegistry
             functionRegistry.put(Constants.SPATIAL_FUNCTION_NS + "transform", Transform.class);
