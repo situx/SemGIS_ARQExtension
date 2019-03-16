@@ -12,7 +12,7 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.raster;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import org.apache.jena.sparql.engine.binding.Binding;
@@ -28,8 +28,7 @@ import org.locationtech.jts.operation.distance.DistanceOp;
 public class DWithin extends DoubleRaster2DSpatialFunction {
 
     @Override
-    protected NodeValue exec(GridCoverage2D raster, GridCoverage2D raster2, GeoSPARQLLiteral datatype, Binding binding,
-            List<NodeValue> evalArgs, String uri, FunctionEnv env) {
+    protected NodeValue exec(GridCoverage2D raster, GridCoverage2D raster2, GeometryWrapper geometryWrapper, Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env) {
         Rectangle2D bbox1 = raster.getEnvelope2D().getBounds2D();
         Rectangle2D bbox2 = raster2.getEnvelope2D().getBounds2D();
         Double withinDistance = evalArgs.get(0).getDouble();

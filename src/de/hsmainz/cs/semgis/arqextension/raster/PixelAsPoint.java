@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,47 +8,45 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.raster;
 
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.util.List;
-
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridEnvelope2D;
-import org.geotools.geometry.Envelope2D;
-import org.geotools.geometry.jts.GeometryBuilder;
-import org.opengis.referencing.operation.TransformException;
-
-
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.vocabulary.XSD;
-
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.geometry.Envelope2D;
+import org.locationtech.jts.geom.CoordinateXY;
+import org.opengis.referencing.operation.TransformException;
 
 public class PixelAsPoint extends RasterSpatialFunction {
 
-	@Override
-	protected String[] getRestOfArgumentTypes() {
-		// TODO Auto-generated method stub
-		return new String[]{XSD.xint.getURI(),XSD.xint.getURI()};
-	}
+    @Override
+    protected String[] getRestOfArgumentTypes() {
+        // TODO Auto-generated method stub
+        return new String[]{XSD.xint.getURI(), XSD.xint.getURI()};
+    }
 
-	@Override
-	protected NodeValue exec(GridCoverage2D raster, GeoSPARQLLiteral datatype, Binding binding,
-			List<NodeValue> evalArgs, String uri, FunctionEnv env) {
-		Integer x=evalArgs.get(0).getInteger().intValue();
-		Integer y=evalArgs.get(0).getInteger().intValue();
-		GeometryBuilder builder=new GeometryBuilder();
-		Envelope2D pixelEnvelop;
-		try {
-			pixelEnvelop = raster.getGridGeometry().gridToWorld(new GridEnvelope2D(x, y, 1, 1));
-			return makeNodeValue(builder.point(pixelEnvelop.getCenterX(), pixelEnvelop.getCenterY()),datatype);
-		} catch (TransformException e) {
-			return NodeValue.nvNothing;
-		}
-	}
+    @Override
+    protected NodeValue exec(GridCoverage2D raster, GeometryWrapper geometryWrapper, Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env) {
+        Integer x = evalArgs.get(0).getInteger().intValue();
+        Integer y = evalArgs.get(0).getInteger().intValue();
+
+        Envelope2D pixelEnvelop;
+        try {
+            pixelEnvelop = raster.getGridGeometry().gridToWorld(new GridEnvelope2D(x, y, 1, 1));
+
+            CoordinateXY coord = new CoordinateXY(pixelEnvelop.getCenterX(), pixelEnvelop.getCenterY());
+            GeometryWrapper pointWrapper = GeometryWrapper.createPoint(coord, geometryWrapper.getSrsURI(), geometryWrapper.getGeometryDatatypeURI());
+            return pointWrapper.asNodeValue();
+        } catch (TransformException e) {
+            return NodeValue.nvNothing;
+        }
+    }
 
 }

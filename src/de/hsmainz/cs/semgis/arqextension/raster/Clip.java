@@ -15,7 +15,8 @@
  */
 package de.hsmainz.cs.semgis.arqextension.raster;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import static de.hsmainz.cs.semgis.arqextension.raster.RasterSpatialFunction.makeNodeValueRaster;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.awt.image.RenderedImage;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,9 +52,9 @@ import org.opengis.referencing.operation.TransformException;
 public class Clip extends Raster2DGeometrySpatialFunction {
 
     @Override
-    protected NodeValue exec(GridCoverage2D raster, Geometry g, GeoSPARQLLiteral datatype, Binding binding,
-            List<NodeValue> evalArgs, String uri, FunctionEnv env) {
-        return makeNodeValueRaster(this.clipImageToFeatureSource(raster, (ReferencedEnvelope) raster.getEnvelope(), g), datatype);
+    protected NodeValue exec(GridCoverage2D raster, GeometryWrapper geometryWrapper, Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env) {
+        Coverage coverage = clipImageToFeatureSource(raster, (ReferencedEnvelope) raster.getEnvelope(), geometryWrapper.getXYGeometry());
+        return makeNodeValueRaster(coverage, geometryWrapper.getGeometryDatatypeURI());
     }
 
     private Coverage clipImageToFeatureSource(GridCoverage gridcoverage,

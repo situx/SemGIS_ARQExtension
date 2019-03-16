@@ -12,7 +12,7 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.raster;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.util.List;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -22,7 +22,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 public class Intersects extends DoubleRaster2DSpatialFunction {
 
     @Override
-    protected NodeValue exec(GridCoverage2D raster, GridCoverage2D raster2, GeoSPARQLLiteral datatype, Binding binding,
+    protected NodeValue exec(GridCoverage2D raster, GridCoverage2D raster2, GeometryWrapper geometryWrapper, Binding binding,
             List<NodeValue> evalArgs, String uri, FunctionEnv env) {
         return NodeValue.makeBoolean(raster.getEnvelope2D().getBounds2D().intersects(raster2.getEnvelope2D().getBounds2D()));
     }

@@ -12,19 +12,17 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.raster;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.util.List;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.locationtech.jts.geom.Geometry;
 
 public class Count extends Raster2DGeometrySpatialFunction {
 
     @Override
-    protected NodeValue exec(GridCoverage2D raster, Geometry g, GeoSPARQLLiteral datatype, Binding binding,
-            List<NodeValue> evalArgs, String uri, FunctionEnv env) {
+    protected NodeValue exec(GridCoverage2D raster, GeometryWrapper geometryWrapper, Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env) {
         Integer bandNum;
         if (evalArgs.isEmpty()) {
             bandNum = 1;

@@ -12,7 +12,7 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.raster;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.util.List;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -20,7 +20,7 @@ import org.apache.jena.sparql.function.FunctionEnv;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.opengis.coverage.Coverage;
 
-public abstract class RasterSpatialFunction extends de.hsmainz.cs.semgis.arqextension.SpatialFunctionBase {
+public abstract class RasterSpatialFunction extends SpatialFunctionBase {
 
     /**
      * {@inheritDoc}
@@ -31,15 +31,11 @@ public abstract class RasterSpatialFunction extends de.hsmainz.cs.semgis.arqexte
         NodeValue geom = evalArgs.get(0);
         GridCoverage2D raster = (GridCoverage2D) geom.getNode().getLiteralValue();
         geom = evalArgs.get(1);
-        checkGeometryLiteral(geom);
-        GeoSPARQLLiteral datatype = (GeoSPARQLLiteral) geom.getNode().getLiteralDatatype();
-        return exec(raster, datatype, binding, evalArgs, uri, env);
+        GeometryWrapper geometryWrapper = GeometryWrapper.extract(geom);
+        return exec(raster, geometryWrapper, binding, evalArgs, uri, env);
     }
 
-    protected abstract NodeValue exec(GridCoverage2D raster, GeoSPARQLLiteral datatype, Binding binding,
-            List<NodeValue> evalArgs, String uri, FunctionEnv env);
-
-    protected abstract String[] getRestOfArgumentTypes();
+    protected abstract NodeValue exec(GridCoverage2D raster, GeometryWrapper geometryWrapper, Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env);
 
     /**
      * {@inheritDoc}
@@ -56,8 +52,8 @@ public abstract class RasterSpatialFunction extends de.hsmainz.cs.semgis.arqexte
         return args;
     }
 
-    public static NodeValue makeNodeValueRaster(Coverage coverage, GeoSPARQLLiteral datatype) {
-        return NodeValue.makeNode("ogc:Raster", null, datatype.getURI());
+    public static NodeValue makeNodeValueRaster(Coverage coverage, String datatypeURI) {
+        return NodeValue.makeNode("ogc:Raster", null, datatypeURI);
     }
 
 }

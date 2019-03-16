@@ -12,7 +12,7 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.raster;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.util.List;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -23,7 +23,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 public class BandNoDataValue extends RasterSpatialFunction {
 
     @Override
-    protected NodeValue exec(GridCoverage2D raster, GeoSPARQLLiteral datatype, Binding binding,
+    protected NodeValue exec(GridCoverage2D raster, GeometryWrapper geometryWrapper, Binding binding,
             List<NodeValue> evalArgs, String uri, FunctionEnv env) {
         Integer bandNum;
         if (evalArgs.isEmpty()) {

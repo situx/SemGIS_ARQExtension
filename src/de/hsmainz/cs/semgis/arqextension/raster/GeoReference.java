@@ -12,23 +12,22 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.raster;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.util.List;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.vocabulary.XSD;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.locationtech.jts.geom.Geometry;
 
 public class GeoReference extends Raster2DGeometrySpatialFunction {
 
     @Override
-    protected NodeValue exec(GridCoverage2D raster, Geometry g, GeoSPARQLLiteral datatype, Binding binding,
+    protected NodeValue exec(GridCoverage2D raster, GeometryWrapper geometryWrapper, Binding binding,
             List<NodeValue> evalArgs, String uri, FunctionEnv env) {
         String format = evalArgs.get(0).getString();
         Boolean gdal = false, esri = false;
-        if (format.equals("GDAL") || format == null) {
+        if (format == null || format.equals("GDAL")) {
             gdal = true;
         } else if (format.equals("ESRI")) {
             esri = true;

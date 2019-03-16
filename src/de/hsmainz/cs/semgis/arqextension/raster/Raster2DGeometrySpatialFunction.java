@@ -12,15 +12,12 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.raster;
 
-import de.hsmainz.cs.semgis.arqextension.SpatialFunctionBase;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.util.List;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.locationtech.jts.geom.Geometry;
-import org.opengis.coverage.Coverage;
 
 public abstract class Raster2DGeometrySpatialFunction extends SpatialFunctionBase {
 
@@ -28,21 +25,15 @@ public abstract class Raster2DGeometrySpatialFunction extends SpatialFunctionBas
      * {@inheritDoc}
      */
     @Override
-    protected NodeValue exec(Binding binding, List<NodeValue> evalArgs,
-            String uri, FunctionEnv env) {
+    protected NodeValue exec(Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env) {
         NodeValue geom = evalArgs.get(0);
         GridCoverage2D raster = (GridCoverage2D) geom.getNode().getLiteralValue();
         geom = evalArgs.get(1);
-        checkGeometryLiteral(geom);
-        Geometry g = (Geometry) geom.getNode().getLiteralValue();
-        GeoSPARQLLiteral datatype = (GeoSPARQLLiteral) geom.getNode().getLiteralDatatype();
-        return exec(raster, g, datatype, binding, evalArgs, uri, env);
+        GeometryWrapper geometryWrapper = GeometryWrapper.extract(geom);
+        return exec(raster, geometryWrapper, binding, evalArgs, uri, env);
     }
 
-    protected abstract NodeValue exec(GridCoverage2D raster, Geometry g, GeoSPARQLLiteral datatype, Binding binding,
-            List<NodeValue> evalArgs, String uri, FunctionEnv env);
-
-    protected abstract String[] getRestOfArgumentTypes();
+    protected abstract NodeValue exec(GridCoverage2D raster, GeometryWrapper geometryWrapper, Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env);
 
     /**
      * {@inheritDoc}
@@ -57,10 +48,6 @@ public abstract class Raster2DGeometrySpatialFunction extends SpatialFunctionBas
             args[i++] = s;
         }
         return args;
-    }
-
-    public static NodeValue makeNodeValueRaster(Coverage coverage, GeoSPARQLLiteral datatype) {
-        return NodeValue.makeNode("ogc:Raster", null, datatype.getURI());
     }
 
 }
