@@ -12,28 +12,33 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.linestring;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionBase1;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 
-public class IsClosed extends SingleLineStringSpatialFunction {
+public class IsClosed extends FunctionBase1 {
 
     @Override
-    protected NodeValue exec(LineString g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-            String uri, FunctionEnv env) {
-        if (g instanceof LineString) {
-            NodeValue.booleanReturn(((LineString) g).isClosed());
+    public NodeValue exec(NodeValue arg0) {
+
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            Geometry geom = geometry.getXYGeometry();
+
+            if (geom instanceof LineString) {
+
+                boolean isClosed = ((LineString) geom).isClosed();
+                return NodeValue.makeNodeBoolean(isClosed);
+            }
+
+            return NodeValue.nvNothing;
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
         }
-        return NodeValue.nvNothing;
-    }
-
-    @Override
-    protected String[] getRestOfArgumentTypes() {
-        // TODO Auto-generated method stub
-        return new String[]{};
     }
 
 }

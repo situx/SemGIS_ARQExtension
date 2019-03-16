@@ -12,28 +12,50 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.linestring;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import de.hsmainz.cs.semgis.arqextension.geometry.ManyGeometrySpatialFunction;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import io.github.galbiston.geosparql_jena.implementation.SRSInfo;
+import io.github.galbiston.geosparql_jena.implementation.datatype.WKTDatatype;
 import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionBase;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.operation.linemerge.LineMerger;
+import org.opengis.referencing.operation.TransformException;
+import org.opengis.util.FactoryException;
 
-public class MakeLine extends ManyGeometrySpatialFunction {
+public class MakeLine extends FunctionBase {
 
     @Override
-    protected NodeValue exec(List<Geometry> geomlist, GeoSPARQLLiteral datatype, Binding binding,
-            List<NodeValue> evalArgs, String uri, FunctionEnv env) {
-        LineMerger linemerge = new LineMerger();
-        linemerge.add(evalArgs);
-        return makeNodeValue((Geometry) linemerge.getMergedLineStrings().iterator().next(), datatype);
+    public NodeValue exec(List<NodeValue> args) {
+
+        try {
+            SRSInfo srsInfo = SRSInfo.DEFAULT_WKT_CRS84;
+            LineMerger linemerge = new LineMerger();
+
+            for (NodeValue arg : args) {
+                //Convert the supplied geometries to the output SRS.
+                GeometryWrapper geometry = GeometryWrapper.extract(arg);
+                GeometryWrapper transGeometry = geometry.transform(srsInfo);
+                Geometry geom = transGeometry.getXYGeometry();
+
+                linemerge.add(geom);
+            }
+
+            Geometry lineString = (Geometry) linemerge.getMergedLineStrings().iterator().next();
+
+            GeometryWrapper lineStringWrapper = GeometryWrapper.createGeometry(lineString, srsInfo.getSrsURI(), WKTDatatype.URI);
+
+            return lineStringWrapper.asNodeValue();
+        } catch (DatatypeFormatException | FactoryException | TransformException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected String[] getRestOfArgumentTypes() {
-        return new String[]{};
+    public void checkBuild(String arg0, ExprList arg1) {
     }
 
 }

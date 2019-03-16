@@ -12,19 +12,16 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.linestring;
 
-import de.hsmainz.cs.semgis.arqextension.SingleGeometrySpatialFunction;
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import de.hsmainz.cs.semgis.arqextension.geometry.SingleToManyGeometrySpatialFunction;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.apache.jena.vocabulary.XSD;
-import org.geotools.referencing.CRS;
+import org.apache.jena.sparql.function.FunctionBase2;
 import org.geotools.referencing.GeodeticCalculator;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -32,13 +29,39 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-public class Segmentize extends SingleGeometrySpatialFunction {
+public class Segmentize extends FunctionBase2 {
 
-    public List<Geometry> createSegments(Geometry track, double segmentLength) throws NoSuchAuthorityCodeException, FactoryException {
+    @Override
+    public NodeValue exec(NodeValue arg0, NodeValue arg1) {
 
-        GeodeticCalculator calculator = new GeodeticCalculator(CRS.decode("EPSG:4326")); // KML uses WGS84
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            Geometry track = geometry.getXYGeometry();
+            double segmentLength = arg1.getDouble();
+            CoordinateReferenceSystem crs = geometry.getCRS();
+
+            List<Geometry> geometries = createSegments(track, segmentLength, crs);
+            List<String> results = new ArrayList<>(geometries.size());
+            for (Geometry geom : geometries) {
+                GeometryWrapper geomWrapper = GeometryWrapper.createGeometry(geom, geometry.getSrsURI(), geometry.getGeometryDatatypeURI());
+                String result = geomWrapper.asLiteral().toString();
+                results.add(result);
+            }
+
+            //Returning the list of space delimited literals. This is the same as GROUP_CONCAT.
+            //Correct splitting of results for use in query would need a Property Function.
+            return NodeValue.makeNodeString(String.join(" ", results));
+        } catch (DatatypeFormatException | FactoryException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
+    }
+
+    public List<Geometry> createSegments(Geometry track, double segmentLength, CoordinateReferenceSystem crs) throws NoSuchAuthorityCodeException, FactoryException {
+
+        GeodeticCalculator calculator = new GeodeticCalculator(crs); //TODO shouldn't this check whether the SRS/CRS is Geographic? Can be found in GeometryWrapper.getSRSInfo().
+        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING));
 
         LinkedList<Coordinate> coordinates = new LinkedList<>();
         Collections.addAll(coordinates, track.getCoordinates());
@@ -85,20 +108,4 @@ public class Segmentize extends SingleGeometrySpatialFunction {
         return segments;
     }
 
-    @Override
-    protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-            String uri, FunctionEnv env) {
-        try {
-            return SingleToManyGeometrySpatialFunction.makeNodeValueList(this.createSegments(g, evalArgs.get(0).getDouble()), datatype);
-        } catch (FactoryException e) {
-            return NodeValue.nvNothing;
-        }
-
-    }
-
-    @Override
-    protected String[] getRestOfArgumentTypes() {
-        // TODO Auto-generated method stub
-        return new String[]{XSD.xdouble.getURI()};
-    }
 }

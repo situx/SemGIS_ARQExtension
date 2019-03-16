@@ -12,30 +12,37 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.linestring;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.locationtech.jts.geom.LineString;
+import org.apache.jena.sparql.function.FunctionBase1;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.operation.linemerge.LineMerger;
 
-public class LineMerge extends SingleLineStringSpatialFunction {
+public class LineMerge extends FunctionBase1 {
 
     @Override
-    protected NodeValue exec(LineString g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-            String uri, FunctionEnv env) {
-        LineMerger merger = new LineMerger();
-        merger.add(g);
-        return null;
-        //return makeNodeValue(merger.getMergedLineStrings(),datatype);
+    public NodeValue exec(NodeValue arg0) {
 
-    }
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            Geometry geom = geometry.getXYGeometry();
 
-    @Override
-    protected String[] getRestOfArgumentTypes() {
-        // TODO Auto-generated method stub
-        return null;
+            if (geom instanceof MultiLineString) {
+                LineMerger merger = new LineMerger();
+                merger.add(geom);
+                //GeometryWrapper mergerWrapper = GeometryWrapper.createGeometry(merger.getMergedLineStrings(), geometry.getSrsURI(), geometry.getGeometryDatatypeURI());
+                //return mergerWrapper.asNodeValue();
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+            }
+
+            return NodeValue.nvNothing;
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
     }
 
 }

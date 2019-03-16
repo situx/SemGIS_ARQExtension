@@ -12,25 +12,35 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension.linestring;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.function.FunctionBase1;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 
-public class EndPoint extends SingleLineStringSpatialFunction {
-
-    @Override
-    protected NodeValue exec(LineString g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-            String uri, FunctionEnv env) {
-        return makeNodeValue(g.getEndPoint(), datatype);
-    }
+public class EndPoint extends FunctionBase1 {
 
     @Override
-    protected String[] getRestOfArgumentTypes() {
-        // TODO Auto-generated method stub
-        return new String[]{};
+    public NodeValue exec(NodeValue arg0) {
+
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            Geometry geom = geometry.getXYGeometry();
+
+            if (geom instanceof LineString) {
+
+                Point point = ((LineString) geom).getEndPoint();
+                GeometryWrapper pointWrapper = GeometryWrapper.createGeometry(point, geometry.getSrsURI(), geometry.getGeometryDatatypeURI());
+                return pointWrapper.asNodeValue();
+            }
+
+            return NodeValue.nvNothing;
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
     }
 
 }
