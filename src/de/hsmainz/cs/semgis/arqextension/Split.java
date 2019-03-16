@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c) 2017 Timo Homburg, i3Mainz.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License
@@ -8,34 +8,32 @@
  * This project extends work by Ian Simmons who developed the Parliament Triple Store.
  * http://parliament.semwebcentral.org and published his work und BSD License as well.
  *
- *     
- *******************************************************************************/
+ *
+ ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension;
 
-import java.util.List;
-
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.util.AffineTransformation;
+import org.apache.jena.sparql.function.FunctionBase2;
+import org.opengis.referencing.operation.TransformException;
+import org.opengis.util.FactoryException;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
+public class Split extends FunctionBase2 {
 
-public class Split extends DoubleGeometrySpatialFunction{
+    @Override
+    public NodeValue exec(NodeValue arg0, NodeValue arg1) {
 
-	@Override
-	protected NodeValue exec(Geometry g1, Geometry g2, GeoSPARQLLiteral datatype, Binding binding,
-			List<NodeValue> evalArgs, String uri, FunctionEnv env) {
-		AffineTransformation trans=new AffineTransformation();
-		//trans.
-		return null;
-	}
+        try {
+            GeometryWrapper input = GeometryWrapper.extract(arg0);
+            GeometryWrapper blade = GeometryWrapper.extract(arg1);
+            GeometryWrapper transBlade = blade.transform(input.getSrsInfo());
 
-	@Override
-	protected String[] getRestOfArgumentTypes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        } catch (DatatypeFormatException | FactoryException | TransformException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
+    }
 
 }

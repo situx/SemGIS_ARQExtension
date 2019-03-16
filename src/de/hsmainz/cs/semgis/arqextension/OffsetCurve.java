@@ -12,27 +12,23 @@
  ****************************************************************************** */
 package de.hsmainz.cs.semgis.arqextension;
 
-import de.hsmainz.cs.semgis.arqextension.datatypes.GeoSPARQLLiteral;
-import java.util.List;
-import org.apache.jena.sparql.engine.binding.Binding;
+import io.github.galbiston.geosparql_jena.implementation.GeometryWrapper;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
-import org.apache.jena.sparql.function.FunctionEnv;
-import org.locationtech.jts.geom.Geometry;
+import org.apache.jena.sparql.function.FunctionBase3;
 
-public class OffsetCurve extends SingleGeometrySpatialFunction {
-
-    @Override
-    protected NodeValue exec(Geometry g, GeoSPARQLLiteral datatype, Binding binding, List<NodeValue> evalArgs,
-            String uri, FunctionEnv env) {
-        //OffSetCurveBuilder builder=new OffsetCurveBuilder(null, null);
-        // TODO Auto-generated method stub
-        return null;
-    }
+public class OffsetCurve extends FunctionBase3 {
 
     @Override
-    protected String[] getRestOfArgumentTypes() {
-        // TODO Auto-generated method stub
-        return new String[]{};
+    public NodeValue exec(NodeValue arg0, NodeValue arg1, NodeValue arg2) {
+
+        try {
+            GeometryWrapper geometry = GeometryWrapper.extract(arg0);
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        } catch (DatatypeFormatException ex) {
+            throw new ExprEvalException(ex.getMessage(), ex);
+        }
     }
 
 }
