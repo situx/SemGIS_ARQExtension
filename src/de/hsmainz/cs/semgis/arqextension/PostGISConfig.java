@@ -62,6 +62,7 @@ import de.hsmainz.cs.semgis.arqextension.raster.WorldToRasterCoord;
 import de.hsmainz.cs.semgis.arqextension.raster.WorldToRasterCoordX;
 import de.hsmainz.cs.semgis.arqextension.raster.WorldToRasterCoordY;
 import de.hsmainz.cs.semgis.arqextension.vocabulary.PostGISGeo;
+import io.github.galbiston.geosparql_jena.configuration.GeoSPARQLConfig;
 import io.github.galbiston.geosparql_jena.geof.nontopological.filter_functions.GetSRIDFF;
 import io.github.galbiston.geosparql_jena.geof.topological.filter_functions.geometry_property.IsEmptyFF;
 import io.github.galbiston.geosparql_jena.geof.topological.filter_functions.geometry_property.IsSimpleFF;
@@ -169,6 +170,7 @@ public class PostGISConfig {
             //functionRegistry.put(Constants.SPATIAL_FUNCTION_NS + "makeWKTPoint", CreateWKTPoint.class);
             //functionRegistry.put(Constants.SPATIAL_FUNCTION_NS + "WKTToGeometryPoint", LiteralToGeometryType.class);
 
+            GeoSPARQLConfig.setupMemoryIndex();
             IS_FUNCTIONS_REGISTERED = true;
         }
     }
