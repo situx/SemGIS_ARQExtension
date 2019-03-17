@@ -20,7 +20,7 @@ import org.apache.jena.sparql.function.FunctionBase1;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 
-public class X extends FunctionBase1 {
+public class Z extends FunctionBase1 {
 
     @Override
     public NodeValue exec(NodeValue arg0) {
@@ -30,8 +30,7 @@ public class X extends FunctionBase1 {
             Geometry geom = geometry.getXYGeometry();
 
             if (geom instanceof Point) {
-                return NodeValue.makeDouble(((Point) geom).getX());
-               
+                return NodeValue.makeDouble(((Point) geom).getCoordinate().getZ());
             }
 
             return NodeValue.nvNothing;

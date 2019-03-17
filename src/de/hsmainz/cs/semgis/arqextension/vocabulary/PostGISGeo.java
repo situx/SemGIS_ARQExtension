@@ -20,6 +20,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 public class PostGISGeo {
    public static final String uri = "http://www.opengis.net/ont/geosparql#";
 
+
    protected static final Resource resource(String local) {
       return ResourceFactory.createResource(uri + local);
    }
@@ -33,6 +34,7 @@ public class PostGISGeo {
 
    // simple features topological relations
    public static final Property st_area = property("ST_Area");
+   public static final Property st_asbinary = property("ST_AsBinary");
    public static final Property st_azimuth = property("ST_Azimuth");
    public static final Property st_band = property("ST_Band");
    public static final Property st_bandmetadata = property("ST_BandMetaData");
@@ -53,6 +55,8 @@ public class PostGISGeo {
    public static final Property st_hausdorffDistance = property("ST_HausdorffDistance");
    public static final Property st_height = property("ST_Height");
    public static final Property st_isClosed = property("ST_IsClosed");
+   public static final Property st_isCollection = property("ST_IsCollection");
+   public static final Property st_isConvex = property("ST_IsConvex");
    public static final Property st_isEmpty = property("ST_IsEmpty");
    public static final Property st_isRing = property("ST_IsRing");
    public static final Property st_isSimple = property("ST_IsSimple");
@@ -60,6 +64,7 @@ public class PostGISGeo {
    public static final Property st_isValidReason = property("ST_IsValidReason");
    public static final Property st_Length = property("ST_Length");
    public static final Property st_Length2D = property("ST_Length2D");
+   public static final Property st_m = property("ST_M");
    public static final Property st_makeLine = property("ST_MakeLine");
    public static final Property st_makePoint = property("ST_MakePoint");
    public static final Property st_makePointM = property("ST_MakePointM");
@@ -71,11 +76,14 @@ public class PostGISGeo {
    public static final Property st_numPoints = property("ST_NumPoints");
    public static final Property st_nPoints = property("ST_NPoints");
    public static final Property st_offsetCurve = property("ST_OffsetCurve");
+   public static final Property st_orderingEquals = property("ST_OrderingEquals");
    public static final Property st_pixelAsPoint = property("ST_PixelAsPoint");
    public static final Property st_pixelHeight = property("ST_PixelHeight");
    public static final Property st_perimeter = property("ST_Perimeter");
    public static final Property st_perimeter2D = property("ST_Perimeter2D");
    public static final Property st_pointN = property("ST_PointN");
+   public static final Property st_points = property("ST_Points");
+   public static final Property st_pointFromGeoHash = property("ST_PointFromGeoHash");
    public static final Property st_rast_isEmpty = property("ST_rast_isEmpty");
    public static final Property st_rast_Contains = property("ST_rast_Contains");
    public static final Property st_rast_Covers = property("ST_rast_Covers");
@@ -120,6 +128,12 @@ public class PostGISGeo {
    public static final Property st_y = property("ST_Y");
    public static final Property st_yMin = property("ST_YMin");
    public static final Property st_yMax = property("ST_YMax");
+   public static final Property st_z = property("ST_Z");
+   public static final Property st_zMin = property("ST_ZMin");
+   public static final Property st_zMax = property("ST_ZMax");
+
+
+
 
 
 
@@ -146,6 +160,7 @@ public class PostGISGeo {
       public static final Node st_geometryN = PostGISGeo.st_geometryN.asNode();
       public static final Node st_hausdorffDistance = PostGISGeo.st_hausdorffDistance.asNode();
       public static final Node st_isClosed = PostGISGeo.st_isClosed.asNode();
+      public static final Node st_isCollection = PostGISGeo.st_isCollection.asNode();
       public static final Node st_isEmpty = PostGISGeo.st_isEmpty.asNode();
       public static final Node st_isRing = PostGISGeo.st_isRing.asNode();
       public static final Node st_isSimple = PostGISGeo.st_isSimple.asNode();
@@ -153,6 +168,7 @@ public class PostGISGeo {
       public static final Node st_isValidReason = PostGISGeo.st_isValidReason.asNode();
       public static final Node st_Length = PostGISGeo.st_Length.asNode();
       public static final Node st_Length2D = PostGISGeo.st_Length2D.asNode();
+      public static final Node st_m = PostGISGeo.st_m.asNode();
       public static final Node st_makeLine = PostGISGeo.st_makeLine.asNode();
       public static final Node st_makePoint = PostGISGeo.st_makePoint.asNode();
       public static final Node st_makePointM = PostGISGeo.st_makePointM.asNode();
@@ -212,6 +228,7 @@ public class PostGISGeo {
       public static final Node st_y = PostGISGeo.st_y.asNode();
       public static final Node st_yMin = PostGISGeo.st_yMin.asNode();
       public static final Node st_yMax = PostGISGeo.st_yMax.asNode();
+      public static final Node st_z = PostGISGeo.st_z.asNode();
 
    }
 }

@@ -5,6 +5,7 @@ import de.hsmainz.cs.semgis.arqextension.envelope.XMin;
 import de.hsmainz.cs.semgis.arqextension.envelope.YMax;
 import de.hsmainz.cs.semgis.arqextension.envelope.YMin;
 import de.hsmainz.cs.semgis.arqextension.geometry.Area;
+import de.hsmainz.cs.semgis.arqextension.geometry.AsBinary;
 import de.hsmainz.cs.semgis.arqextension.geometry.Centroid;
 import de.hsmainz.cs.semgis.arqextension.geometry.ClosestPoint;
 import de.hsmainz.cs.semgis.arqextension.geometry.ConcaveHull;
@@ -14,10 +15,12 @@ import de.hsmainz.cs.semgis.arqextension.geometry.FlipCoordinates;
 import de.hsmainz.cs.semgis.arqextension.geometry.GeometryN;
 import de.hsmainz.cs.semgis.arqextension.geometry.GeometryType;
 import de.hsmainz.cs.semgis.arqextension.geometry.HausdorffDistance;
+import de.hsmainz.cs.semgis.arqextension.geometry.IsCollection;
 import de.hsmainz.cs.semgis.arqextension.geometry.IsValidReason;
 import de.hsmainz.cs.semgis.arqextension.geometry.Length;
 import de.hsmainz.cs.semgis.arqextension.geometry.NumGeometries;
 import de.hsmainz.cs.semgis.arqextension.geometry.NumPoints;
+import de.hsmainz.cs.semgis.arqextension.geometry.OrderingEquals;
 import de.hsmainz.cs.semgis.arqextension.geometry.Perimeter;
 import de.hsmainz.cs.semgis.arqextension.geometry.PointN;
 import de.hsmainz.cs.semgis.arqextension.geometry.Reverse;
@@ -30,6 +33,7 @@ import de.hsmainz.cs.semgis.arqextension.geometry.TransScale;
 import de.hsmainz.cs.semgis.arqextension.geometry.Transform;
 import de.hsmainz.cs.semgis.arqextension.geometry.Translate;
 import de.hsmainz.cs.semgis.arqextension.geometry.UnaryUnion;
+import de.hsmainz.cs.semgis.arqextension.linestring.EndPoint;
 import de.hsmainz.cs.semgis.arqextension.linestring.IsClosed;
 import de.hsmainz.cs.semgis.arqextension.linestring.IsRing;
 import de.hsmainz.cs.semgis.arqextension.linestring.MakeLine;
@@ -37,8 +41,11 @@ import de.hsmainz.cs.semgis.arqextension.linestring.Segmentize;
 import de.hsmainz.cs.semgis.arqextension.linestring.StartPoint;
 import de.hsmainz.cs.semgis.arqextension.point.Azimuth;
 import de.hsmainz.cs.semgis.arqextension.point.MakePointM;
+import de.hsmainz.cs.semgis.arqextension.point.PointFromGeoHash;
 import de.hsmainz.cs.semgis.arqextension.point.X;
 import de.hsmainz.cs.semgis.arqextension.point.Y;
+import de.hsmainz.cs.semgis.arqextension.point.Z;
+import de.hsmainz.cs.semgis.arqextension.polygon.IsConvex;
 import de.hsmainz.cs.semgis.arqextension.polygon.MakePolygon;
 import de.hsmainz.cs.semgis.arqextension.raster.Band;
 import de.hsmainz.cs.semgis.arqextension.raster.BandMetaData;
@@ -80,6 +87,7 @@ public class PostGISConfig {
             FunctionRegistry functionRegistry = FunctionRegistry.get();
 
             //POSTGIS functionRegistry
+            functionRegistry.put(PostGISGeo.st_asbinary.getURI(), AsBinary.class);
             functionRegistry.put(PostGISGeo.st_area.getURI(), Area.class);
             functionRegistry.put(PostGISGeo.st_azimuth.getURI(), Azimuth.class);
             functionRegistry.put(PostGISGeo.st_band.getURI(), Band.class);
@@ -92,14 +100,16 @@ public class PostGISConfig {
             functionRegistry.put(PostGISGeo.st_concaveHull.getURI(), ConcaveHull.class);
             functionRegistry.put(PostGISGeo.st_delaunayTriangles.getURI(), DelaunayTriangles.class);
             functionRegistry.put(PostGISGeo.st_dimension.getURI(), Dimension.class);
-            functionRegistry.put(PostGISGeo.st_endPoint.getURI(), Dimension.class);
+            functionRegistry.put(PostGISGeo.st_endPoint.getURI(), EndPoint.class);
             functionRegistry.put(PostGISGeo.st_flipCoordinates.getURI(), FlipCoordinates.class);
             functionRegistry.put(PostGISGeo.st_geometryN.getURI(), GeometryN.class);
             functionRegistry.put(PostGISGeo.st_geometryType.getURI(), GeometryType.class);
             functionRegistry.put(PostGISGeo.st_hasNoBand.getURI(), HasNoBand.class);
             functionRegistry.put(PostGISGeo.st_height.getURI(), Height.class);
             functionRegistry.put(PostGISGeo.st_hausdorffDistance.getURI(), HausdorffDistance.class);
+            functionRegistry.put(PostGISGeo.st_isCollection.getURI(), IsCollection.class);
             functionRegistry.put(PostGISGeo.st_isClosed.getURI(), IsClosed.class);
+            functionRegistry.put(PostGISGeo.st_isConvex.getURI(), IsConvex.class);
             functionRegistry.put(PostGISGeo.st_isEmpty.getURI(), IsEmptyFF.class);
             functionRegistry.put(PostGISGeo.st_isRing.getURI(), IsRing.class);
             functionRegistry.put(PostGISGeo.st_isSimple.getURI(), IsSimpleFF.class);
@@ -116,11 +126,13 @@ public class PostGISConfig {
             functionRegistry.put(PostGISGeo.st_numPoints.getURI(), NumPoints.class);
             functionRegistry.put(PostGISGeo.st_nPoints.getURI(), NumPoints.class);
             functionRegistry.put(PostGISGeo.st_offsetCurve.getURI(), OffsetCurve.class);
+            functionRegistry.put(PostGISGeo.st_orderingEquals.getURI(), OrderingEquals.class);
             functionRegistry.put(PostGISGeo.st_perimeter.getURI(), Perimeter.class);
             functionRegistry.put(PostGISGeo.st_perimeter2D.getURI(), Perimeter.class);
             functionRegistry.put(PostGISGeo.st_pixelAsPoint.getURI(), PixelAsPoint.class);
             functionRegistry.put(PostGISGeo.st_pixelHeight.getURI(), PixelHeight.class);
             functionRegistry.put(PostGISGeo.st_pointN.getURI(), PointN.class);
+            functionRegistry.put(PostGISGeo.st_pointFromGeoHash.getURI(), PointFromGeoHash.class);
             functionRegistry.put(PostGISGeo.st_rast_isEmpty.getURI(), de.hsmainz.cs.semgis.arqextension.raster.IsEmpty.class);
             functionRegistry.put(PostGISGeo.st_rast_Contains.getURI(), de.hsmainz.cs.semgis.arqextension.raster.Contains.class);
             functionRegistry.put(PostGISGeo.st_rast_Covers.getURI(), de.hsmainz.cs.semgis.arqextension.raster.Covers.class);
@@ -164,6 +176,7 @@ public class PostGISConfig {
             functionRegistry.put(PostGISGeo.st_y.getURI(), Y.class);
             functionRegistry.put(PostGISGeo.st_yMin.getURI(), YMin.class);
             functionRegistry.put(PostGISGeo.st_yMax.getURI(), YMax.class);
+            functionRegistry.put(PostGISGeo.st_z.getURI(), Z.class);
 
             // extra utility functionRegistry
             functionRegistry.put(Constants.SPATIAL_FUNCTION_NS + "transform", Transform.class);
