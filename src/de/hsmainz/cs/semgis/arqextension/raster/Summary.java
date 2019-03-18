@@ -17,13 +17,13 @@ import java.util.List;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
-import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotoolkit.coverage.grid.GridCoverage2D;
 
 public class Summary extends Raster2DGeometrySpatialFunction {
 
     @Override
     protected NodeValue exec(GridCoverage2D raster, GeometryWrapper geometryWrapper, Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env) {
-        StringBuilder builder = new StringBuilder();
+    	StringBuilder builder = new StringBuilder();
         builder.append("Raster of " + raster.getRenderedImage().getWidth() + "x" + raster.getRenderedImage().getHeight() + " pixels has " + raster.getNumSampleDimensions() + " bands and extent of " + raster.getEnvelope().toString() + System.lineSeparator());
         for (int i = 0; i < raster.getNumSampleDimensions(); i++) {
             builder.append("band " + i + " of pixtype " + raster.getSampleDimension(i).getColorModel().getTransferType() + " is in-db with NODATA value of " + raster.getSampleDimension(i).getNoDataValues()[0] + System.lineSeparator());

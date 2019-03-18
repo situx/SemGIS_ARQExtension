@@ -18,10 +18,10 @@ import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.vocabulary.XSD;
-import org.geotools.coverage.grid.GridCoordinates2D;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.geometry.DirectPosition2D;
+import org.geotoolkit.coverage.grid.GridCoverage2D;
 import org.locationtech.jts.geom.CoordinateXY;
+import org.opengis.coverage.grid.GridCoordinates;
+import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.referencing.operation.TransformException;
 
 public class WorldToRasterCoord extends Raster2DGeometrySpatialFunction {
@@ -33,7 +33,7 @@ public class WorldToRasterCoord extends Raster2DGeometrySpatialFunction {
         Integer latitude = evalArgs.get(1).getInteger().intValue();
 
         try {
-            GridCoordinates2D position = raster.getGridGeometry().worldToGrid(new DirectPosition2D(longitude, latitude));
+            GridCoordinates position = raster.getGridGeometry().worldToGrid(new org.apache.sis.geometry.DirectPosition2D(longitude, latitude));
             CoordinateXY coord = new CoordinateXY(position.getX(), position.getY());
             GeometryWrapper pointWrapper = GeometryWrapper.createPoint(coord, geometryWrapper.getSrsURI(), geometryWrapper.getGeometryDatatypeURI());
             return pointWrapper.asNodeValue();

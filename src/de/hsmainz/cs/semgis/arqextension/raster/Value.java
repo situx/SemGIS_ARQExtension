@@ -13,7 +13,8 @@
 package de.hsmainz.cs.semgis.arqextension.raster;
 
 import java.util.List;
-import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotoolkit.coverage.grid.GridCoverage2D;
+import org.opengis.coverage.grid.GridCoverage;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;

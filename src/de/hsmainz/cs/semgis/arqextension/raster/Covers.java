@@ -19,8 +19,8 @@ import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.vocabulary.XSD;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.geometry.jts.JTS;
+import org.geotoolkit.coverage.grid.GridCoverage2D;
+import org.geotoolkit.geometry.jts.JTS;
 
 public class Covers extends DoubleRaster2DSpatialFunction {
 

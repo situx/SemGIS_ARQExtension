@@ -18,21 +18,20 @@ import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionEnv;
 import org.apache.jena.vocabulary.XSD;
-import org.geotools.coverage.grid.GridCoordinates2D;
-import org.geotools.coverage.grid.GridCoverage2D;
 import org.locationtech.jts.geom.CoordinateXY;
+import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.operation.TransformException;
 
 public class RasterToWorldCoord extends RasterSpatialFunction {
 
     @Override
-    protected NodeValue exec(GridCoverage2D raster, GeometryWrapper geometryWrapper, Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env) {
+    protected NodeValue exec(GridCoverage raster, GeometryWrapper geometryWrapper, Binding binding, List<NodeValue> evalArgs, String uri, FunctionEnv env) {
         Integer column = evalArgs.get(0).getInteger().intValue();
         Integer row = evalArgs.get(1).getInteger().intValue();
 
         try {
-            DirectPosition position = raster.getGridGeometry().gridToWorld(new GridCoordinates2D(column, row));
+            DirectPosition position = raster.getGridGeometry().gridToWorld(new org.geotoolkit.coverage.grid.GridCoordinates2D(column, row));
             CoordinateXY coord = new CoordinateXY(position.getCoordinate()[0], position.getCoordinate()[1]);
             GeometryWrapper pointWrapper = GeometryWrapper.createPoint(coord, geometryWrapper.getSrsURI(), geometryWrapper.getGeometryDatatypeURI());
             return pointWrapper.asNodeValue();

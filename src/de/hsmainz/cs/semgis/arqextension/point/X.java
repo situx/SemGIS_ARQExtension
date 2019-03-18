@@ -31,6 +31,7 @@ public class X extends FunctionBase1 {
 
             if (geom instanceof Point) {
                 return NodeValue.makeDouble(((Point) geom).getX());
+               
             }
 
             return NodeValue.nvNothing;
