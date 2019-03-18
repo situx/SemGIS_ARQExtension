@@ -33,13 +33,16 @@ public class PostGISGeo {
    public static final Resource Feature = resource("Feature");
 
    // simple features topological relations
+   public static final Property st_addpoint = property("ST_AddPoint");
    public static final Property st_area = property("ST_Area");
    public static final Property st_asbinary = property("ST_AsBinary");
+   public static final Property st_astext = property("ST_AsText");
    public static final Property st_azimuth = property("ST_Azimuth");
    public static final Property st_band = property("ST_Band");
    public static final Property st_bandmetadata = property("ST_BandMetaData");
    public static final Property st_bandnodatavalue = property("ST_BandNoDataValue");
    public static final Property st_bandpixeltype = property("ST_BandPixelType");
+   public static final Property st_boundingdiagonal = property("ST_BoundingDiagonal");
    public static final Property st_centroid = property("ST_Centroid");
    public static final Property st_clip = property("ST_Clip");
    public static final Property st_closestPoint = property("ST_ClosestPoint");
@@ -49,11 +52,13 @@ public class PostGISGeo {
    public static final Property st_endPoint = property("ST_endPoint");
    public static final Property st_envelope = property("ST_Envelope");
    public static final Property st_flipCoordinates = property("ST_FlipCoordinates");
+   public static final Property st_geomFromWKB = property("ST_GeomFromWKB");
    public static final Property st_geometryN = property("ST_GeometryN");
    public static final Property st_geometryType = property("ST_GeometryType");
    public static final Property st_hasNoBand = property("ST_HasNoBand");
    public static final Property st_hausdorffDistance = property("ST_HausdorffDistance");
    public static final Property st_height = property("ST_Height");
+   public static final Property st_interiorRingN = property("ST_InteriorRingN");
    public static final Property st_isClosed = property("ST_IsClosed");
    public static final Property st_isCollection = property("ST_IsCollection");
    public static final Property st_isConvex = property("ST_IsConvex");
@@ -64,12 +69,17 @@ public class PostGISGeo {
    public static final Property st_isValidReason = property("ST_IsValidReason");
    public static final Property st_Length = property("ST_Length");
    public static final Property st_Length2D = property("ST_Length2D");
+   public static final Property st_lineFromWKB = property("ST_LineFromWKB");
    public static final Property st_m = property("ST_M");
+   public static final Property st_makeEnvelope = property("ST_MakeEnvelope");
    public static final Property st_makeLine = property("ST_MakeLine");
    public static final Property st_makePoint = property("ST_MakePoint");
    public static final Property st_makePointM = property("ST_MakePointM");
    public static final Property st_makePolygon = property("ST_MakePolygon");
    public static final Property st_minimumBoundingCircle = property("ST_MinimumBoundingCircle");
+   public static final Property st_minimumBoundingRadius = property("ST_MinimumBoundingRadius");
+   public static final Property st_minimumClearance = property("ST_MinimumClearance");
+   public static final Property st_minimumClearanceLine = property("ST_MinimumClearanceLine");
    public static final Property st_nearestValue = property("ST_NearestValue");
    public static final Property st_numBands = property("ST_NumBands");
    public static final Property st_numGeometries = property("ST_NumGeometries");
@@ -81,6 +91,7 @@ public class PostGISGeo {
    public static final Property st_pixelHeight = property("ST_PixelHeight");
    public static final Property st_perimeter = property("ST_Perimeter");
    public static final Property st_perimeter2D = property("ST_Perimeter2D");
+   public static final Property st_pointFromWKB = property("ST_PointFromWKB");
    public static final Property st_pointN = property("ST_PointN");
    public static final Property st_points = property("ST_Points");
    public static final Property st_pointFromGeoHash = property("ST_PointFromGeoHash");
@@ -97,6 +108,7 @@ public class PostGISGeo {
    public static final Property st_rasterToWorldCoord = property("ST_RasterToWorldCoord");
    public static final Property st_rasterToWorldCoordX = property("ST_RasterToWorldCoordX");
    public static final Property st_rasterToWorldCoordY = property("ST_RasterToWorldCoordY");
+   public static final Property st_removePoint = property("ST_RemovePoint");
    public static final Property st_reverse = property("ST_Reverse");
    public static final Property st_rotate = property("ST_Rotate");
    public static final Property st_scale = property("ST_Scale");
@@ -104,6 +116,7 @@ public class PostGISGeo {
    public static final Property st_setPoint = property("ST_SetPoint");
    public static final Property st_simplify = property("ST_Simplify");
    public static final Property st_simplifyPreserveTopology = property("ST_SimplifyPreserveTopology");
+   public static final Property st_simplifyVW = property("ST_SimplifyVW");
    public static final Property st_snap = property("ST_Snap");
    public static final Property st_split = property("ST_Split");
    public static final Property st_srid = property("ST_SRID");
@@ -131,11 +144,6 @@ public class PostGISGeo {
    public static final Property st_z = property("ST_Z");
    public static final Property st_zMin = property("ST_ZMin");
    public static final Property st_zMax = property("ST_ZMax");
-
-
-
-
-
 
    public static class Nodes {
       public static final Node SpatialObject = PostGISGeo.SpatialObject.asNode();
